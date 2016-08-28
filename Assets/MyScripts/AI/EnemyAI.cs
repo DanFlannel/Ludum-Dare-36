@@ -9,10 +9,9 @@ public class EnemyAI : MonoBehaviour {
     public int RPM;
     public float force;
 
-    public float respawnTimer;
-    public GameObject model;
+    private float respawnTimer = 3f;
 
-    public float curRespawnTimer;
+    private float curRespawnTimer;
     private float sec_BetweenShots;
     private float shotTimer;
 
@@ -24,9 +23,9 @@ public class EnemyAI : MonoBehaviour {
     private GameObject target;
     private PlayerHolder players;
 
-    public bool canShoot;
-    public bool isInRange;
-    public bool isDead;
+    private bool canShoot;
+    private bool isInRange;
+    public bool isDead { get; private set; }
 
     void Start()
     {
@@ -214,7 +213,7 @@ public class EnemyAI : MonoBehaviour {
         //change to find all childs and disable them, as well as disabling box colliders
         if (!isDead)
         {
-            model.SetActive(false);
+            models_boxColliders(false);
             isDead = true;
             agent.Stop();
         }
@@ -224,8 +223,22 @@ public class EnemyAI : MonoBehaviour {
     {
         //change to find all childs and enable them, as well as enabling box colliders
         agent.Resume();
+        models_boxColliders(true);
         isDead = false;
-        model.SetActive(true);
         FindTarget();
+    }
+
+    private void models_boxColliders(bool b)
+    {
+        foreach (Transform child in this.transform)
+        {
+            child.gameObject.SetActive(b);
+        }
+
+        BoxCollider[] bcs = this.GetComponents<BoxCollider>();
+        for (int i = 0; i < bcs.Length; i++)
+        {
+            bcs[i].enabled = b;
+        }
     }
 }
