@@ -8,5 +8,6 @@ public static class customTags {
     public const string GameMaster = "GameMaster";
     public const string Projectile = "Projectile";
     public const string Player = "Player";
+    public const string SpawnHandler = "SpawnHandler";
 
 }

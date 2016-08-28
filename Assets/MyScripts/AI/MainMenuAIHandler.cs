@@ -30,7 +30,7 @@ public class MainMenuAIHandler : MonoBehaviour {
         }
     }
 
-    void spawn()
+    public void spawn()
     {
         Bounds bounds = bc.bounds;
 
@@ -44,5 +44,29 @@ public class MainMenuAIHandler : MonoBehaviour {
         GameObject alien = Instantiate(enemyPrefabs[rnd], spawnLoc, Quaternion.identity) as GameObject;
         alien.transform.localScale = new Vector3(1, 1, 1);
         alien.transform.parent = this.transform;
+    }
+
+    public void spawn(GameObject player)
+    {
+        Bounds bounds = bc.bounds;
+
+        Vector3 center = bounds.center;
+        float x = Random.Range(center.x - bounds.extents.x, center.x + bounds.extents.x);
+        float z = Random.Range(center.z - bounds.extents.z, center.z + bounds.extents.z);
+
+        Vector3 spawnLoc = new Vector3(x, bounds.center.y, z);
+        int rnd = Random.Range(0, enemyPrefabs.Length);
+
+        player.transform.position = spawnLoc;
+
+        if (player.GetComponent<EnemyAI>())
+        {
+            player.GetComponent<EnemyAI>().Respawn();
+        }
+    }
+
+    public void spawnLocation()
+    {
+
     }
 }

@@ -9,6 +9,10 @@ public class EnemyAI : MonoBehaviour {
     public int RPM;
     public float force;
 
+    public float respawnTimer;
+    public GameObject model;
+
+    public float curRespawnTimer;
     private float sec_BetweenShots;
     private float shotTimer;
 
@@ -22,10 +26,13 @@ public class EnemyAI : MonoBehaviour {
 
     public bool canShoot;
     public bool isInRange;
+    public bool isDead;
 
     void Start()
     {
         canShoot = false;
+        isDead = false;
+        curRespawnTimer = respawnTimer;
         gm = GameObject.FindGameObjectWithTag(customTags.GameMaster).GetComponent<GameMaster>();
         players = GameObject.FindGameObjectWithTag(customTags.GameMaster).GetComponent<PlayerHolder>();
         agent = this.GetComponent<NavMeshAgent>();
@@ -48,18 +55,20 @@ public class EnemyAI : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (target != null)
+
+        checkRespawn();
+
+        if (target != null && !target.GetComponent<EnemyAI>().isDead)
         {
-            agent.destination = target.transform.position;
-
-            if (Vector3.Distance(target.transform.position, this.transform.position) <= agent.stoppingDistance)
+            if (!isDead)
             {
-                Rotate();
-            }
+                agent.destination = target.transform.position;
+                shotTimer -= Time.deltaTime;
 
-            shotTimer -= Time.deltaTime;
-            checkRange();
-            checkShoot();
+                Rotate();
+                checkRange();
+                checkShoot();
+            }
         }
         else
         {
@@ -69,12 +78,15 @@ public class EnemyAI : MonoBehaviour {
 
     private void Rotate()
     {
-        Vector3 relativePos = target.transform.position - this.transform.position;
-        relativePos = new Vector3(relativePos.x, 0, relativePos.z);
-        if (relativePos != Vector3.zero)
+        if (Vector3.Distance(target.transform.position, this.transform.position) <= agent.stoppingDistance)
         {
-            Quaternion rotation = Quaternion.LookRotation(relativePos);
-            transform.rotation = rotation;
+            Vector3 relativePos = target.transform.position - this.transform.position;
+            relativePos = new Vector3(relativePos.x, 0, relativePos.z);
+            if (relativePos != Vector3.zero)
+            {
+                Quaternion rotation = Quaternion.LookRotation(relativePos);
+                transform.rotation = rotation;
+            }
         }
     }
 
@@ -96,8 +108,11 @@ public class EnemyAI : MonoBehaviour {
             int rnd = Random.Range(0, players.networkPlayers.Count);
             if(players.networkPlayers[rnd] != this.gameObject)
             {
-                target = players.networkPlayers[rnd];
-                return;
+                if (!players.networkPlayers[rnd].GetComponent<EnemyAI>().isDead)
+                {
+                    target = players.networkPlayers[rnd];
+                    return;
+                }
             }
         }
 
@@ -106,8 +121,11 @@ public class EnemyAI : MonoBehaviour {
         {
             if (players.networkPlayers[i] != this.gameObject)
             {
-                target = players.networkPlayers[i];
-                return;
+                if (!players.networkPlayers[i].GetComponent<EnemyAI>().isDead)
+                {
+                    target = players.networkPlayers[i];
+                    return;
+                }
             }
         }
 
@@ -164,6 +182,20 @@ public class EnemyAI : MonoBehaviour {
         }
     }
 
+    private void checkRespawn()
+    {
+        if (!isDead)
+        {
+            return;
+        }
+        curRespawnTimer -= Time.deltaTime;
+        if(curRespawnTimer <= 0)
+        {
+            GameObject.FindGameObjectWithTag(customTags.SpawnHandler).GetComponent<MainMenuAIHandler>().spawn(this.gameObject);
+            curRespawnTimer = respawnTimer;
+        }
+    }
+
     public void Death()
     {
         GameObject death = Instantiate(gm.bloodPrefab, this.transform.position, Quaternion.identity) as GameObject;
@@ -177,8 +209,23 @@ public class EnemyAI : MonoBehaviour {
                 child.GetComponent<Rigidbody>().AddExplosionForce(gm.explosionForce * rnd, this.transform.position, gm.explosionRadius * rnd, gm.explosionUpwardMod * rnd, ForceMode.Impulse);
             }
         }
-        players.networkPlayers.Remove(this.gameObject);
+        //players.networkPlayers.Remove(this.gameObject);
 
-        Destroy(this.gameObject);
+        //change to find all childs and disable them, as well as disabling box colliders
+        if (!isDead)
+        {
+            model.SetActive(false);
+            isDead = true;
+            agent.Stop();
+        }
+    }
+
+    public void Respawn()
+    {
+        //change to find all childs and enable them, as well as enabling box colliders
+        agent.Resume();
+        isDead = false;
+        model.SetActive(true);
+        FindTarget();
     }
 }
