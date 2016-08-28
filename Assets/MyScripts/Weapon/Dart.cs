@@ -1,15 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Bullet : MonoBehaviour {
+public class Dart : MonoBehaviour {
 
-    public GameMaster gm;
+    //public GameMaster gm;
 
     void Start()
     {
-        gm = GameObject.FindGameObjectWithTag(customTags.GameMaster).GetComponent<GameMaster>();
+        //gm = GameObject.FindGameObjectWithTag(customTags.GameMaster).GetComponent<GameMaster>();
     }
-	
+
     void OnTriggerEnter(Collider other)
     {
         //Debug.Log(other.transform.tag);
@@ -17,7 +17,7 @@ public class Bullet : MonoBehaviour {
         {
             return;
         }
-        if(other.transform.tag == customTags.Enemies)
+        if (other.transform.tag == customTags.Enemies)
         {
 
         }

@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class playerControls : MonoBehaviour {
+public class playerControls : MonoBehaviour
+{
 
 
     public float playerSpeed;
@@ -28,10 +29,11 @@ public class playerControls : MonoBehaviour {
     {
         machineGun = this.GetComponent<MachineGun>();
         aSource = this.GetComponent<AudioSource>();
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
         if (!gm.isPaused)
         {
             Move();
@@ -39,15 +41,12 @@ public class playerControls : MonoBehaviour {
 
             shootControls();
         }
-	}
+    }
 
     void FixedUpdate()
     {
-        if (!gm.isPaused)
-        {
-            UpdateMousePosition();
-            Jump();
-        }
+        UpdateMousePosition();
+        Jump();
     }
 
     private void Move()
@@ -97,7 +96,7 @@ public class playerControls : MonoBehaviour {
     {
         if (Input.GetMouseButton(0))
         {
-            
+
             //machineGun.Shoot(aSource, mousePos);
         }
     }
@@ -115,7 +114,7 @@ public class playerControls : MonoBehaviour {
     {
         health -= dmg;
 
-        if(health <= 0)
+        if (health <= 0)
         {
             GameObject death = Instantiate(gm.bloodPrefab, this.transform.position, Quaternion.identity) as GameObject;
             death.transform.parent = gm.transform;
