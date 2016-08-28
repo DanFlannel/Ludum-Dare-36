@@ -4,7 +4,6 @@ using System.Collections;
 public class playerControls : MonoBehaviour
 {
 
-
     public float playerSpeed;
     public float jumpHeight;
     public bool isJumping;
@@ -14,7 +13,7 @@ public class playerControls : MonoBehaviour
     private Vector3 targetPos;
 
     private AudioSource aSource;
-    private MachineGun machineGun;
+    private BlowDartGun blowGun;
     private Vector3 mousePos;
 
     private GameMaster gm;
@@ -27,7 +26,7 @@ public class playerControls : MonoBehaviour
 
     void Start()
     {
-        machineGun = this.GetComponent<MachineGun>();
+        blowGun = this.GetComponent<BlowDartGun>();
         aSource = this.GetComponent<AudioSource>();
     }
 
@@ -96,8 +95,7 @@ public class playerControls : MonoBehaviour
     {
         if (Input.GetMouseButton(0))
         {
-
-            //machineGun.Shoot(aSource, mousePos);
+            blowGun.Shoot(aSource, mousePos);
         }
     }
 

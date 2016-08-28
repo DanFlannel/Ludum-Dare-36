@@ -8,7 +8,7 @@ public class BlowDartGun : MonoBehaviour {
 
 
     public AudioClip blowSound;
-    public GameObject dart;
+    public GameObject projectilePrefab;
     public GameObject muzzelPos;
 
     private float shotTimer;
@@ -46,10 +46,10 @@ public class BlowDartGun : MonoBehaviour {
 
         aSource.PlayOneShot(blowSound);
 
-        GameObject clone = Instantiate(dart, muzzelPos.transform.position, Quaternion.identity) as GameObject;
-        clone.name = "bullet";
+        GameObject clone = Instantiate(projectilePrefab, muzzelPos.transform.position, Quaternion.identity) as GameObject;
+        clone.name = "dart";
 
-        Transform parent = this.transform.FindChild("BlowGun");
+        Transform parent = GameObject.Find(customStrings.ProjectileParent).transform;
 
         clone.transform.parent = parent;
 
@@ -61,6 +61,9 @@ public class BlowDartGun : MonoBehaviour {
 
         Rigidbody rigid = clone.GetComponent<Rigidbody>();
         rigid.AddForce(clone.transform.forward * force);
+
+        Dart dart = clone.GetComponent<Dart>();
+        dart.shooter = this.gameObject;
 
         shotTimer = sec_BetweenShots;
         canShoot = false;
