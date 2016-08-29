@@ -4,11 +4,14 @@ using System.Collections;
 public class playerControls : MonoBehaviour
 {
 
+
     public float playerSpeed;
     public float jumpHeight;
     public bool isJumping;
 
-    public float health;
+    private float health = 1;
+    private float respawnTimer = 3f;
+    private float curRespawnTimer;
 
     private Vector3 targetPos;
 
@@ -17,15 +20,22 @@ public class playerControls : MonoBehaviour
     private Vector3 mousePos;
 
     private GameMaster gm;
+    private PlayerHolder players;
+
+    public bool isDead;
 
     void Awake()
     {
+        players = GameObject.FindGameObjectWithTag(customTags.GameMaster).GetComponent<PlayerHolder>();
+
         gm = GameObject.FindGameObjectWithTag(customTags.GameMaster).GetComponent<GameMaster>();
         gm.player = this.gameObject;
     }
 
     void Start()
     {
+        players.networkPlayers.Add(this.gameObject);
+
         blowGun = this.GetComponent<BlowDartGun>();
         aSource = this.GetComponent<AudioSource>();
     }
@@ -33,11 +43,10 @@ public class playerControls : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!gm.isPaused)
+        if (!gm.isPaused && !isDead)
         {
             Move();
             Rotate();
-
             shootControls();
         }
     }
@@ -112,12 +121,35 @@ public class playerControls : MonoBehaviour
     {
         health -= dmg;
 
-        if (health <= 0)
+        if (health <= 0 && !isDead)
         {
             GameObject death = Instantiate(gm.bloodPrefab, this.transform.position, Quaternion.identity) as GameObject;
             death.transform.parent = gm.transform;
             this.GetComponent<Rigidbody>().AddExplosionForce(gm.explosionForce * 50f, this.transform.position, gm.explosionRadius * 50f, gm.explosionUpwardMod * 50f, ForceMode.Impulse);
-            Destroy(this.gameObject);
+
+            model_collider_enabled(false);
+            isDead = true;
         }
+    }
+
+    private void model_collider_enabled(bool b)
+    {
+        foreach (Transform child in this.transform)
+        {
+            child.gameObject.SetActive(b);
+        }
+
+        BoxCollider[] bc = this.GetComponents<BoxCollider>();
+
+        for(int i = 0; i < bc.Length; i++)
+        {
+            bc[i].enabled = b;
+        }
+    }
+    
+    public void respawn()
+    {
+        isDead = false;
+        model_collider_enabled(true);
     }
 }

@@ -64,9 +64,4 @@ public class MainMenuAIHandler : MonoBehaviour {
             player.GetComponent<EnemyAI>().Respawn();
         }
     }
-
-    public void spawnLocation()
-    {
-
-    }
 }
