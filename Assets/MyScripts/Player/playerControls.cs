@@ -26,7 +26,6 @@ public class playerControls : entityStats
     {
         players = GameObject.FindGameObjectWithTag(customTags.GameMaster).GetComponent<PlayerHolder>();
         gm = GameObject.FindGameObjectWithTag(customTags.GameMaster).GetComponent<GameMaster>();
-        gm.player = this.gameObject;
     }
 
     void Start()
@@ -44,18 +43,15 @@ public class playerControls : entityStats
     // Update is called once per frame
     void Update()
     {
-        if (!gm.isPaused)
+        if (!isDead)
         {
-            if (!isDead)
-            {
-                Move();
-                Rotate();
-                shootControls();
-            }
-            else
-            {
-                checkRespawn();
-            }
+            Move();
+            Rotate();
+            shootControls();
+        }
+        else
+        {
+            checkRespawn();
         }
     }
 
@@ -148,12 +144,12 @@ public class playerControls : entityStats
 
         BoxCollider[] bc = this.GetComponents<BoxCollider>();
 
-        for(int i = 0; i < bc.Length; i++)
+        for (int i = 0; i < bc.Length; i++)
         {
             bc[i].enabled = b;
         }
     }
-    
+
     private void checkRespawn()
     {
         if (!isDead)

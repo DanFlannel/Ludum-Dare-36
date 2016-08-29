@@ -34,8 +34,6 @@ public class EnemyAI : entityStats {
         aSource = this.GetComponent<AudioSource>();
         blowGun = this.GetComponent<BlowDartGun>();
         blowGun.setRPM_force(RPM, force);
-
-
     }
 	
 	// Update is called once per frame
@@ -161,7 +159,6 @@ public class EnemyAI : entityStats {
 
     public void Respawn()
     {
-        //change to find all childs and enable them, as well as enabling box colliders
         agent.Resume();
         models_boxColliders(true);
         isDead = false;

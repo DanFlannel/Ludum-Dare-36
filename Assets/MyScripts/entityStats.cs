@@ -11,7 +11,7 @@ public class entityStats : MonoBehaviour {
 
     public float curRespawnTimer;
 
-    void Start()
+    void Awake()
     {
         isDead = false;
         respawnTimer = 3f;
