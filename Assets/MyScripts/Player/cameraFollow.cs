@@ -16,6 +16,7 @@ public class cameraFollow : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+
 	}
 	
 	// Update is called once per frame
@@ -27,7 +28,11 @@ public class cameraFollow : MonoBehaviour {
     {
         if(player == null)
         {
-            return;
+            player = GameObject.FindGameObjectWithTag(customTags.Player);
+            if(player == null)
+            {
+                return;
+            }
         }
 
         targetPosition = new Vector3((player.transform.position.x - distanceX), distanceY, (player.transform.position.z - distanceZ));

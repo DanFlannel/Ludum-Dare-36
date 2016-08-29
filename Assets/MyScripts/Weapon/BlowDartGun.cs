@@ -3,9 +3,8 @@ using System.Collections;
 
 public class BlowDartGun : MonoBehaviour {
 
-    public int RPM;
-    public float force;
-
+    private int RPM;
+    private float force;
 
     public AudioClip blowSound;
     public GameObject projectilePrefab;
@@ -14,12 +13,6 @@ public class BlowDartGun : MonoBehaviour {
     private float shotTimer;
     private float sec_BetweenShots;
     private bool canShoot;
-
-    void Start()
-    {
-        sec_BetweenShots = 60f / RPM;
-        shotTimer = sec_BetweenShots;
-    }
 
     void Update()
     {
@@ -67,5 +60,12 @@ public class BlowDartGun : MonoBehaviour {
 
         shotTimer = sec_BetweenShots;
         canShoot = false;
+    }
+
+    public void setRPM_force(int rpm, float f)
+    {
+        RPM = rpm;
+        sec_BetweenShots = 60f / RPM;
+        force = f;
     }
 }

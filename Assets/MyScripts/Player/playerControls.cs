@@ -1,17 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class playerControls : MonoBehaviour
+public class playerControls : entityStats
 {
 
+    public bool isJumping;
 
     public float playerSpeed;
     public float jumpHeight;
-    public bool isJumping;
+
 
     private float health = 1;
-    private float respawnTimer = 3f;
-    private float curRespawnTimer;
 
     private Vector3 targetPos;
 
@@ -22,12 +21,10 @@ public class playerControls : MonoBehaviour
     private GameMaster gm;
     private PlayerHolder players;
 
-    public bool isDead;
 
     void Awake()
     {
         players = GameObject.FindGameObjectWithTag(customTags.GameMaster).GetComponent<PlayerHolder>();
-
         gm = GameObject.FindGameObjectWithTag(customTags.GameMaster).GetComponent<GameMaster>();
         gm.player = this.gameObject;
     }
@@ -35,19 +32,30 @@ public class playerControls : MonoBehaviour
     void Start()
     {
         players.networkPlayers.Add(this.gameObject);
+        players.newSpawnLoc(this.gameObject);
 
         blowGun = this.GetComponent<BlowDartGun>();
+
+        blowGun.setRPM_force(RPM, force);
+
         aSource = this.GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!gm.isPaused && !isDead)
+        if (!gm.isPaused)
         {
-            Move();
-            Rotate();
-            shootControls();
+            if (!isDead)
+            {
+                Move();
+                Rotate();
+                shootControls();
+            }
+            else
+            {
+                checkRespawn();
+            }
         }
     }
 
@@ -78,9 +86,7 @@ public class playerControls : MonoBehaviour
     {
         if (Input.GetButtonDown("Jump") && !isJumping)
         {
-            Debug.Log("PressedSpace");
-            Rigidbody rigid = this.GetComponent<Rigidbody>();
-            Vector3 jumpForce = new Vector3(0, jumpHeight, 0);
+            //Debug.Log("PressedSpace");
             this.GetComponent<Rigidbody>().velocity = new Vector3(0, jumpHeight, 0);
 
             isJumping = true;
@@ -127,6 +133,7 @@ public class playerControls : MonoBehaviour
             death.transform.parent = gm.transform;
             this.GetComponent<Rigidbody>().AddExplosionForce(gm.explosionForce * 50f, this.transform.position, gm.explosionRadius * 50f, gm.explosionUpwardMod * 50f, ForceMode.Impulse);
 
+            players.newSpawnLoc(this.gameObject);
             model_collider_enabled(false);
             isDead = true;
         }
@@ -147,7 +154,21 @@ public class playerControls : MonoBehaviour
         }
     }
     
-    public void respawn()
+    private void checkRespawn()
+    {
+        if (!isDead)
+        {
+            return;
+        }
+        curRespawnTimer -= Time.deltaTime;
+        if (curRespawnTimer <= 0)
+        {
+            curRespawnTimer = respawnTimer;
+            respawn();
+        }
+    }
+
+    private void respawn()
     {
         isDead = false;
         model_collider_enabled(true);

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 public class PlayerHolder : MonoBehaviour
 {
-
-    public List<GameObject> networkPlayers = new List<GameObject>();
     public BoxCollider bc;
+    public List<GameObject> networkPlayers = new List<GameObject>();
+
 
     public void newSpawnLoc(GameObject player)
     {

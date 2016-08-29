@@ -13,6 +13,12 @@ public class SinglePlayerGUI : MonoBehaviour {
         {
             tutorial.SetActive(true);
         }
+
+        if (gameOver.activeInHierarchy)
+        {
+            gameOver.SetActive(false);
+        }
+
         Time.timeScale = 0;
 	}
 	

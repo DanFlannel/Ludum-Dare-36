@@ -1,36 +1,21 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class EnemyAI : MonoBehaviour {
-
-    public AudioClip shotSound;
+public class EnemyAI : entityStats {
 
     public float range;
-    public int RPM;
-    public float force;
-
-    private float respawnTimer = 3f;
-
-    private float curRespawnTimer;
-    private float sec_BetweenShots;
-    private float shotTimer;
-
-    public GameObject muzzelPos;
-    public GameObject bullet;
 
     private NavMeshAgent agent;
     private GameMaster gm;
     private GameObject target;
     private PlayerHolder players;
 
-    private bool canShoot;
-    private bool isInRange;
-    public bool isDead { get; private set; }
+    private AudioSource aSource;
+    private BlowDartGun blowGun;
+
 
     void Start()
     {
-        canShoot = false;
-        isDead = false;
         curRespawnTimer = respawnTimer;
         gm = GameObject.FindGameObjectWithTag(customTags.GameMaster).GetComponent<GameMaster>();
         players = GameObject.FindGameObjectWithTag(customTags.GameMaster).GetComponent<PlayerHolder>();
@@ -38,18 +23,19 @@ public class EnemyAI : MonoBehaviour {
 
         if(players != null)
         {
-            players.networkPlayers.Add(this.gameObject);
+            if (!players.networkPlayers.Contains(this.gameObject))
+            {
+                players.networkPlayers.Add(this.gameObject);
+            }
         }
 
-        if(gm.player != null) {
-            target = gm.player;
-        }
-        else
-        {
-            FindTarget();
-        }
-        
-        sec_BetweenShots = 60f / RPM;
+        FindTarget();
+
+        aSource = this.GetComponent<AudioSource>();
+        blowGun = this.GetComponent<BlowDartGun>();
+        blowGun.setRPM_force(RPM, force);
+
+
     }
 	
 	// Update is called once per frame
@@ -57,16 +43,13 @@ public class EnemyAI : MonoBehaviour {
 
         checkRespawn();
 
-        if (target != null && !target.GetComponent<EnemyAI>().isDead)
+        if (target != null && !target.GetComponent<entityStats>().isDead)
         {
             if (!isDead)
             {
                 agent.destination = target.transform.position;
-                shotTimer -= Time.deltaTime;
-
                 Rotate();
                 checkRange();
-                checkShoot();
             }
         }
         else
@@ -107,7 +90,7 @@ public class EnemyAI : MonoBehaviour {
             int rnd = Random.Range(0, players.networkPlayers.Count);
             if(players.networkPlayers[rnd] != this.gameObject)
             {
-                if (!players.networkPlayers[rnd].GetComponent<EnemyAI>().isDead)
+                if (!players.networkPlayers[rnd].GetComponent<entityStats>().isDead)
                 {
                     target = players.networkPlayers[rnd];
                     return;
@@ -131,53 +114,11 @@ public class EnemyAI : MonoBehaviour {
         target = null;
     }
 
-    private void Shoot(Vector3 targetPos)
-    {
-        if (!canShoot)
-        {
-            return;
-        }
-        AudioSource aSource = this.GetComponent<AudioSource>();
-        aSource.PlayOneShot(shotSound);
-
-        GameObject clone = Instantiate(bullet, muzzelPos.transform.position, Quaternion.identity) as GameObject;
-        clone.name = "Lazer";
-        clone.transform.parent = GameObject.Find(customStrings.ProjectileParent).transform;
-
-        targetPos = new Vector3(targetPos.x, clone.transform.position.y, targetPos.z);
-
-        Vector3 relativePos = targetPos - clone.transform.position;
-        Quaternion rotation = Quaternion.LookRotation(relativePos);
-        clone.transform.rotation = rotation;
-
-        Rigidbody rigid = clone.GetComponent<Rigidbody>();
-        rigid.AddForce(clone.transform.forward * force);
-
-        shotTimer = sec_BetweenShots;
-        canShoot = false;
-    }
-
-    private void checkShoot()
-    {
-        if (shotTimer <= 0)
-        {
-            canShoot = true;
-        }
-        if (canShoot && isInRange)
-        {
-            Shoot(target.transform.position);
-        }
-    }
-
     private void checkRange()
     {
         if(Vector3.Distance(this.transform.position, target.transform.position) < range)
         {
-            isInRange = true;
-        }
-        else
-        {
-            isInRange = false;
+            blowGun.Shoot(aSource, target.transform.position);
         }
     }
 
@@ -190,8 +131,8 @@ public class EnemyAI : MonoBehaviour {
         curRespawnTimer -= Time.deltaTime;
         if(curRespawnTimer <= 0)
         {
-            GameObject.FindGameObjectWithTag(customTags.SpawnHandler).GetComponent<MainMenuAIHandler>().spawn(this.gameObject);
             curRespawnTimer = respawnTimer;
+            Respawn();
         }
     }
 
@@ -208,11 +149,10 @@ public class EnemyAI : MonoBehaviour {
                 child.GetComponent<Rigidbody>().AddExplosionForce(gm.explosionForce * rnd, this.transform.position, gm.explosionRadius * rnd, gm.explosionUpwardMod * rnd, ForceMode.Impulse);
             }
         }
-        //players.networkPlayers.Remove(this.gameObject);
 
-        //change to find all childs and disable them, as well as disabling box colliders
         if (!isDead)
         {
+            players.newSpawnLoc(this.gameObject);
             models_boxColliders(false);
             isDead = true;
             agent.Stop();

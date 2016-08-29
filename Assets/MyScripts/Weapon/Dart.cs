@@ -27,7 +27,7 @@ public class Dart : MonoBehaviour {
 
         if(other.transform.tag == customTags.Player)
         {
-
+            other.GetComponent<playerControls>().applyDamage(1);
         }
 
         if (other.transform.tag == customTags.Enemy)
