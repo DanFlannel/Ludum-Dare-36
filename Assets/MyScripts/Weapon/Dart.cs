@@ -28,10 +28,15 @@ public class Dart : MonoBehaviour {
 
         if(other.transform.tag == customTags.Player)
         {
+            //networked players
             if (other.GetComponent<playerControls_Networked>())
             {
                 other.GetComponent<playerControls_Networked>().applyDamage(1);
+                shooter.GetComponent<playerControls_Networked>().kills++;
+
+                Debug.Log(shooter.GetComponent<playerControls_Networked>().kills);
             }
+            //single player
             if (other.GetComponent<playerControls>())
             {
                 other.GetComponent<playerControls>().applyDamage(1);

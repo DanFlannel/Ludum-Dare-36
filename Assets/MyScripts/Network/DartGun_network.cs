@@ -58,10 +58,10 @@ public class DartGun_network : NetworkBehaviour {
         Rigidbody rigid = clone.GetComponent<Rigidbody>();
         rigid.AddForce(clone.transform.forward * force);
 
-        Debug.Log("Force: " + force);
+        //Debug.Log("Force: " + force);
 
         Dart dart = clone.GetComponent<Dart>();
-        dart.shooter = this.gameObject;
+        dart.shooter = this.GetComponent<playerControls_Networked>().gameObject;
 
         clone.AddComponent<AudioSource>().PlayOneShot(blowSound);
 

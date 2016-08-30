@@ -4,8 +4,8 @@ using UnityEngine.Networking;
 
 public class playerControls_Networked : playerStats {
 
-    [Header("Options")]
-    public float smoothSpeed = 10f;
+    public string pName;
+    public int kills;
 
     public bool isJumping;
 
@@ -37,7 +37,10 @@ public class playerControls_Networked : playerStats {
     void Start()
     {
         delayStart = false;
+
         players.networkPlayers.Add(this.gameObject);
+        players.networkPlayerControls.Add(this);
+
         blowGun = this.GetComponent<DartGun_network>();
 
         blowGun.setRPM_force(RPM, force);
@@ -147,6 +150,7 @@ public class playerControls_Networked : playerStats {
 
         if (health <= 0 && !isDead)
         {
+            players.sortList();
             isDead = true;
             players.newSpawnLoc(this.gameObject);
             model_collider_enabled(false);
