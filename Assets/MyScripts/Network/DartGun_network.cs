@@ -40,9 +40,7 @@ public class DartGun_network : NetworkBehaviour {
         }
         GameObject clone = Instantiate(projectilePrefab, muzzelPos.transform.position, Quaternion.identity) as GameObject;
 
-        Debug.Log(this.transform.GetComponent<Rigidbody>().velocity);
-        Rigidbody rigid = this.GetComponent<Rigidbody>();
-        rigid.AddForce(this.transform.forward * force);
+
 
 
         clone.name = "dart";
@@ -56,6 +54,9 @@ public class DartGun_network : NetworkBehaviour {
         Vector3 relativePos = targetPos - clone.transform.position;
         Quaternion rotation = Quaternion.LookRotation(relativePos);
         clone.transform.rotation = rotation;
+
+        Rigidbody rigid = clone.GetComponent<Rigidbody>();
+        rigid.AddForce(clone.transform.forward * force);
 
         Debug.Log("Force: " + force);
 
