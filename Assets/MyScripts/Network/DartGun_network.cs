@@ -40,6 +40,10 @@ public class DartGun_network : NetworkBehaviour {
         }
         GameObject clone = Instantiate(projectilePrefab, muzzelPos.transform.position, Quaternion.identity) as GameObject;
 
+        Debug.Log(this.transform.GetComponent<Rigidbody>().velocity);
+        Rigidbody rigid = this.GetComponent<Rigidbody>();
+        rigid.AddForce(this.transform.forward * force);
+
 
         clone.name = "dart";
 
@@ -59,6 +63,7 @@ public class DartGun_network : NetworkBehaviour {
         dart.shooter = this.gameObject;
 
         clone.AddComponent<AudioSource>().PlayOneShot(blowSound);
+
         NetworkServer.Spawn(clone);
 
         shotTimer = sec_BetweenShots;

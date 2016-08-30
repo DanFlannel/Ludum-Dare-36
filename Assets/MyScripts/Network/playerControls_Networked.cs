@@ -61,7 +61,6 @@ public class playerControls_Networked : playerStats {
         LateStart();
         if (!isLocalPlayer)
         {
-            Debug.Log("not local client");
             return;
         }
 
