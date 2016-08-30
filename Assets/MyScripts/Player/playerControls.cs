@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.Networking;
 
 public class playerControls : entityStats
 {
@@ -24,6 +25,7 @@ public class playerControls : entityStats
 
     void Awake()
     {
+        StatsInit();
         players = GameObject.FindGameObjectWithTag(customTags.GameMaster).GetComponent<PlayerHolder>();
         gm = GameObject.FindGameObjectWithTag(customTags.GameMaster).GetComponent<GameMaster>();
     }
@@ -106,7 +108,7 @@ public class playerControls : entityStats
     {
         if (Input.GetMouseButton(0))
         {
-            blowGun.Shoot(aSource, mousePos);
+            blowGun.shoot(mousePos);
         }
     }
 
@@ -132,6 +134,7 @@ public class playerControls : entityStats
             players.newSpawnLoc(this.gameObject);
             model_collider_enabled(false);
             isDead = true;
+            
         }
     }
 
@@ -148,6 +151,7 @@ public class playerControls : entityStats
         {
             bc[i].enabled = b;
         }
+        this.GetComponent<Rigidbody>().useGravity = b;
     }
 
     private void checkRespawn()

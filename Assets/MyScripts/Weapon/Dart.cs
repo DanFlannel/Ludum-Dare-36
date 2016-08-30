@@ -9,6 +9,7 @@ public class Dart : MonoBehaviour {
     void Start()
     {
         //gm = GameObject.FindGameObjectWithTag(customTags.GameMaster).GetComponent<GameMaster>();
+        Debug.Log(this.transform.GetComponent<Rigidbody>().velocity);
     }
 
     void OnTriggerEnter(Collider other)
@@ -27,7 +28,14 @@ public class Dart : MonoBehaviour {
 
         if(other.transform.tag == customTags.Player)
         {
-            other.GetComponent<playerControls>().applyDamage(1);
+            if (other.GetComponent<playerControls_Networked>())
+            {
+                other.GetComponent<playerControls_Networked>().applyDamage(1);
+            }
+            if (other.GetComponent<playerControls>())
+            {
+                other.GetComponent<playerControls>().applyDamage(1);
+            }
         }
 
         if (other.transform.tag == customTags.Enemy)

@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class BlowDartGun : MonoBehaviour {
+public class BlowDartGun : MonoBehaviour
+{
 
     private int RPM;
     private float force;
@@ -30,14 +31,12 @@ public class BlowDartGun : MonoBehaviour {
         }
     }
 
-    public void Shoot(AudioSource aSource, Vector3 targetPos)
+    public void shoot(Vector3 targetPos)
     {
         if (!canShoot)
         {
             return;
         }
-
-        aSource.PlayOneShot(blowSound);
 
         GameObject clone = Instantiate(projectilePrefab, muzzelPos.transform.position, Quaternion.identity) as GameObject;
         clone.name = "dart";
@@ -57,6 +56,10 @@ public class BlowDartGun : MonoBehaviour {
 
         Dart dart = clone.GetComponent<Dart>();
         dart.shooter = this.gameObject;
+
+        clone.AddComponent<AudioSource>();
+        clone.GetComponent<AudioSource>().volume = .25f;
+        clone.GetComponent<AudioSource>().PlayOneShot(blowSound);
 
         shotTimer = sec_BetweenShots;
         canShoot = false;

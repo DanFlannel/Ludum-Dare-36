@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class EnemyAI : entityStats {
+public class EnemyAI : entityStats
+{
 
     public float range;
 
@@ -21,7 +22,7 @@ public class EnemyAI : entityStats {
         players = GameObject.FindGameObjectWithTag(customTags.GameMaster).GetComponent<PlayerHolder>();
         agent = this.GetComponent<NavMeshAgent>();
 
-        if(players != null)
+        if (players != null)
         {
             if (!players.networkPlayers.Contains(this.gameObject))
             {
@@ -35,9 +36,10 @@ public class EnemyAI : entityStats {
         blowGun = this.GetComponent<BlowDartGun>();
         blowGun.setRPM_force(RPM, force);
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update()
+    {
 
         checkRespawn();
 
@@ -54,7 +56,7 @@ public class EnemyAI : entityStats {
         {
             FindTarget();
         }
-	}
+    }
 
     private void Rotate()
     {
@@ -70,41 +72,56 @@ public class EnemyAI : entityStats {
         }
     }
 
-    private void FindTarget() {
+    private void FindTarget()
+    {
 
-        if(players == null)
+        if (players == null)
         {
             return;
         }
 
-        if(players.networkPlayers.Count <= 1)
+        if (players.networkPlayers.Count <= 1)
         {
             return;
         }
 
         //for randomness
-        for(int i = 0; i < players.networkPlayers.Count; i++)
+        for (int i = 0; i < players.networkPlayers.Count; i++)
         {
             int rnd = Random.Range(0, players.networkPlayers.Count);
-            if(players.networkPlayers[rnd] != this.gameObject)
+            if (players.networkPlayers[rnd] != this.gameObject)
             {
-                if (!players.networkPlayers[rnd].GetComponent<entityStats>().isDead)
+                if (players.networkPlayers[rnd].GetComponent<playerStats>())
                 {
-                    target = players.networkPlayers[rnd];
-                    return;
+                    if (!players.networkPlayers[rnd].GetComponent<playerStats>().isDead)
+                    {
+                        target = players.networkPlayers[rnd];
+                        return;
+                    }
+                }
+                if (players.networkPlayers[rnd].GetComponent<entityStats>())
+                {
+                    if (!players.networkPlayers[rnd].GetComponent<entityStats>().isDead)
+                    {
+                        target = players.networkPlayers[rnd];
+                        return;
+                    }
                 }
             }
         }
 
         //just in case
-        for(int i = 0; i < players.networkPlayers.Count; i++)
+        for (int i = 0; i < players.networkPlayers.Count; i++)
         {
             if (players.networkPlayers[i] != this.gameObject)
             {
-                if (!players.networkPlayers[i].GetComponent<EnemyAI>().isDead)
+                if (players.networkPlayers[i] != null)
                 {
-                    target = players.networkPlayers[i];
-                    return;
+                    if (!players.networkPlayers[i].GetComponent<EnemyAI>().isDead)
+                    {
+                        target = players.networkPlayers[i];
+                        return;
+                    }
                 }
             }
         }
@@ -114,9 +131,16 @@ public class EnemyAI : entityStats {
 
     private void checkRange()
     {
-        if(Vector3.Distance(this.transform.position, target.transform.position) < range)
+        if (Vector3.Distance(this.transform.position, target.transform.position) < range)
         {
-            blowGun.Shoot(aSource, target.transform.position);
+            if (target != null)
+            {
+                blowGun.shoot(target.transform.position);
+            }
+            else
+            {
+                FindTarget();
+            }
         }
     }
 
@@ -127,7 +151,7 @@ public class EnemyAI : entityStats {
             return;
         }
         curRespawnTimer -= Time.deltaTime;
-        if(curRespawnTimer <= 0)
+        if (curRespawnTimer <= 0)
         {
             curRespawnTimer = respawnTimer;
             Respawn();
@@ -139,7 +163,7 @@ public class EnemyAI : entityStats {
         GameObject death = Instantiate(gm.bloodPrefab, this.transform.position, Quaternion.identity) as GameObject;
         death.transform.parent = gm.transform;
 
-        foreach(Transform child in death.transform)
+        foreach (Transform child in death.transform)
         {
             if (child.GetComponent<Rigidbody>())
             {
