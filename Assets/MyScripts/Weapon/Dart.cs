@@ -4,12 +4,15 @@ using System.Collections;
 public class Dart : MonoBehaviour {
 
     public GameObject shooter;
+    public float force;
     //public GameMaster gm;
 
     void Start()
     {
         //gm = GameObject.FindGameObjectWithTag(customTags.GameMaster).GetComponent<GameMaster>();
         Debug.Log(this.transform.GetComponent<Rigidbody>().velocity);
+        Rigidbody rigid = this.GetComponent<Rigidbody>();
+        rigid.AddForce(this.transform.forward * force);
     }
 
     void OnTriggerEnter(Collider other)

@@ -4,6 +4,8 @@ using UnityEngine.Networking;
 
 public class playerControls_Networked : playerStats {
 
+    [Header("Options")]
+    public float smoothSpeed = 10f;
 
     public bool isJumping;
 
@@ -22,10 +24,7 @@ public class playerControls_Networked : playerStats {
     private GameMaster gm;
     private PlayerHolder players;
 
-    private Vector3 realPosition = Vector3.zero;
-    private Quaternion realRotation;
-    private Vector3 sendPosition = Vector3.zero;
-    private Quaternion sendRotation;
+    private bool delayStart;
 
     void Awake()
     {
@@ -37,9 +36,8 @@ public class playerControls_Networked : playerStats {
 
     void Start()
     {
+        delayStart = false;
         players.networkPlayers.Add(this.gameObject);
-        players.newSpawnLoc(this.gameObject);
-
         blowGun = this.GetComponent<DartGun_network>();
 
         blowGun.setRPM_force(RPM, force);
@@ -47,19 +45,25 @@ public class playerControls_Networked : playerStats {
         aSource = this.GetComponent<AudioSource>();
     }
 
+    void LateStart()
+    {
+        if (!delayStart)
+        {
+            players.newSpawnLoc(this.gameObject);
+            delayStart = true;
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
-        if (!GetComponent<NetworkView>().isMine)
-        {
-            transform.position = Vector3.Lerp(this.transform.position, realPosition, Time.deltaTime * 15);
-            transform.rotation = Quaternion.Lerp(this.transform.rotation, realRotation, Time.deltaTime * 30);
-        }
 
-        if (!isLocalPlayer)
+        LateStart();
+        /*if (!isLocalPlayer)
         {
+            Debug.Log("not local client");
             return;
-        }
+        }*/
 
         if (!isDead)
         {
@@ -73,29 +77,12 @@ public class playerControls_Networked : playerStats {
         }
     }
 
-    void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
-    {
-        if (stream.isWriting)
-        {//this is your information you will send over the network
-            sendPosition = this.transform.position;
-            sendRotation = this.transform.rotation;
-            stream.Serialize(ref sendPosition);//im pretty sure you have to use ref here, check that
-            stream.Serialize(ref sendRotation);//same with the ref here...
-        }
-        else if (stream.isReading)
-        {//this is the information you will recieve over the network
-            stream.Serialize(ref realPosition);//Vector3 position
-            stream.Serialize(ref realRotation);//Quaternion postion
-        }
-    }
-
-
-
     void FixedUpdate()
     {
         UpdateMousePosition();
         Jump();
     }
+
 
     private void Move()
     {
@@ -113,7 +100,6 @@ public class playerControls_Networked : playerStats {
             transform.rotation = rotation;
         }
     }
-
 
     private void Jump()
     {

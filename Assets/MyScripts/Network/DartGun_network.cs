@@ -31,9 +31,13 @@ public class DartGun_network : NetworkBehaviour {
         }
     }
 
-    [ClientRpc]
-    private void RpccreateBullet(Vector3 targetPos)
+    [Command]
+    public void CmdShoot(Vector3 targetPos)
     {
+        if (!canShoot)
+        {
+            return;
+        }
         GameObject clone = Instantiate(projectilePrefab, muzzelPos.transform.position, Quaternion.identity) as GameObject;
 
 
@@ -50,29 +54,15 @@ public class DartGun_network : NetworkBehaviour {
         clone.transform.rotation = rotation;
 
         Debug.Log("Force: " + force);
-        Rigidbody rigid = clone.GetComponent<Rigidbody>();
-        rigid.AddForce(clone.transform.forward * force);
 
         Dart dart = clone.GetComponent<Dart>();
         dart.shooter = this.gameObject;
 
         clone.AddComponent<AudioSource>().PlayOneShot(blowSound);
-        //NetworkServer.Spawn(clone);
+        NetworkServer.Spawn(clone);
 
-        Destroy(clone, 1f);
         shotTimer = sec_BetweenShots;
         canShoot = false;
-    }
-
-    [Command]
-    public void CmdShoot(Vector3 targetPos)
-    {
-        if (!canShoot)
-        {
-            return;
-        }
-        RpccreateBullet(targetPos);
-       
     }
 
     public void setRPM_force(int rpm, float f)
