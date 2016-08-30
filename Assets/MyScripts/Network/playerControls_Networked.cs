@@ -59,11 +59,11 @@ public class playerControls_Networked : playerStats {
     {
 
         LateStart();
-        /*if (!isLocalPlayer)
+        if (!isLocalPlayer)
         {
             Debug.Log("not local client");
             return;
-        }*/
+        }
 
         if (!isDead)
         {
